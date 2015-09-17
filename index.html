@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>BidPub</title>
+
+    <script src="./bower_components/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+    <script src="./bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="./bower_components/pubnub/web/pubnub.min.js"></script>
+    <style type="text/css">
+    .product {
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+    .product img {
+      height: 230px;
+    }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="col-md-12">
+      
+        <nav class="navbar navbar-inverse">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">BidPub</a>
+          </div>
+          <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+
+    </div>
+
+    <div class="container" id="bids">
+
+    </div>
+
+    <script type="text/javascript">
+    var bidding = function() {
+      
+      var self = this;
+    
+      self.pubnub = PUBNUB.init({
+        subscribe_key: 'demo',
+        publish_key: 'demo'
+      });
+
+      self.data = [
+        {
+          name: 'Easy Feet',
+          id: 'easyfeet',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'EZ Cracker',
+          id: 'ezcracker',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Gyro Bowl',
+          id: 'gyrobowl',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Health Med',
+          id: 'healthmed',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Magic Chopper',
+          id: 'magicchopper',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'One Touch',
+          id: 'onetouch',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Pocket Hose',
+          id: 'pockethose',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Booty Pop',
+          id: 'bootypop',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Potato Express',
+          id: 'potatoexpress',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Roll-n-Grow',
+          id: 'rollngrow',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Sham Scrub',
+          id: 'shamscrub',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Slice-o-Matic',
+          id: 'sliceomatic',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Smart Mop',
+          id: 'smartmop',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Urine Gone',
+          id: 'urinegone',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'Wuggle Pets',
+          id: 'wugglepets',
+          ext: 'jpg',
+          price: '19'
+        },
+        {
+          name: 'XPress101',
+          id: 'xpress101',
+          ext: 'jpg',
+          price: '19'
+        }
+      ];
+
+      self.auctions = [];
+
+      self.auction = function(data) {
+
+        var a = this;
+
+        a.data = data;
+
+        a.$tpl = $('<div class="col-md-3 product" id="' + a.data.id + '">' +
+          '<div class="well">' +
+            '<img class="img-responsive" src="./images/' + a.data.id + '.' + a.data.ext + '" />' +
+          '</div>' +
+          '<p>' + a.data.price +'.99' + '</p>' +
+          '<div class="progress">' +
+            '<div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">' +
+              '<span class="sr-only">60% Complete</span>' +
+            '</div>' +
+          '</div>' +
+          '<button type="button" class="btn btn-default">' +
+            '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Place Bid' +
+          '</button>' +
+        '</div>');
+
+        a.$tpl.find('.btn').click(function(){
+
+          self.pubnub.publish({
+            channel: 'pubnub-bids',
+            message: data
+          });
+
+        });
+
+        $('#bids').append(a.$tpl);
+
+        return a;
+
+      }
+
+      // create auctions
+      for(var i = 0; i < self.data.length; i++) {
+        self.auctions[self.data[i].id] = new self.auction(self.data[i]);
+      }
+
+      self.pubnub.subscribe({
+        channel: 'pubnub-bids',
+        message: function(data) {
+
+          console.log(self.auctions[data.id])
+
+        }
+      });
+
+    }
+    var app = new bidding();
+    </script>
+
+  </body>
+</html>

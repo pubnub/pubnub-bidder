@@ -1,0 +1,21 @@
+{
+  "name": "pubnub-bidding",
+  "version": "0.0.0",
+  "authors": [
+    "Ian Jennings <ian@meetjennings.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "bootstrap": "~3.3.5",
+    "react": "~0.13.3",
+    "pubnub": "~3.7.14"
+  }
+}
