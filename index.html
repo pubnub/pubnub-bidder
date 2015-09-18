@@ -21,6 +21,13 @@
     .product img {
       height: 230px;
     }
+    .bump {
+      -ms-transform: scale(1.5);
+      -webkit-transform: scale(1.5);
+      transform: scale(1.5);
+      -webkit-transition-duration: 1s;
+      transition-duration: 1s;
+    }
     </style>
 
   </head>
@@ -71,97 +78,113 @@
           name: 'Easy Feet',
           id: 'easyfeet',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'EZ Cracker',
           id: 'ezcracker',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Gyro Bowl',
           id: 'gyrobowl',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Health Med',
           id: 'healthmed',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Magic Chopper',
           id: 'magicchopper',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'One Touch',
           id: 'onetouch',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Pocket Hose',
           id: 'pockethose',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Booty Pop',
           id: 'bootypop',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Potato Express',
           id: 'potatoexpress',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Roll-n-Grow',
           id: 'rollngrow',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Sham Scrub',
           id: 'shamscrub',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Slice-o-Matic',
           id: 'sliceomatic',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Smart Mop',
           id: 'smartmop',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Urine Gone',
           id: 'urinegone',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'Wuggle Pets',
           id: 'wugglepets',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         },
         {
           name: 'XPress101',
           id: 'xpress101',
           ext: 'jpg',
-          price: '19'
+          price: '19',
+          percentLeft: 100
         }
       ];
 
@@ -173,31 +196,62 @@
 
         a.data = data;
 
-        a.$tpl = $('<div class="col-md-3 product" id="' + a.data.id + '">' +
-          '<div class="well">' +
-            '<img class="img-responsive" src="./images/' + a.data.id + '.' + a.data.ext + '" />' +
-          '</div>' +
-          '<p>' + a.data.price +'.99' + '</p>' +
-          '<div class="progress">' +
-            '<div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">' +
-              '<span class="sr-only">60% Complete</span>' +
+        a.$wrapper = $('<div class="col-md-3 product" id="' + a.data.id + '"></div>');
+
+        a.render = function() {
+
+          a.$tpl = $('<div class="well">' +
+              '<img class="img-responsive" src="./images/' + a.data.id + '.' + a.data.ext + '" />' +
             '</div>' +
-          '</div>' +
-          '<button type="button" class="btn btn-default">' +
-            '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Place Bid' +
-          '</button>' +
-        '</div>');
+            '<p class="price">' + a.data.price +'.99' + '</p>' +
+            '<div class="progress">' +
+              '<div class="progress-bar" role="progressbar"aria-valuemin="0" aria-valuemax="100" style="width: ' + a.data.percentLeft + '%;">' +
+              '</div>' +
+            '</div>' +
+            '<button type="button" class="btn btn-default">' +
+              '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Place Bid' +
+            '</button>');
 
-        a.$tpl.find('.btn').click(function(){
+          var $w = $('#' + a.data.id);
 
-          self.pubnub.publish({
-            channel: 'pubnub-bids',
-            message: data
+          $w.empty();
+
+          $w.append(a.$tpl);
+
+          $w.find('.btn').click(function() {
+
+            self.pubnub.publish({
+              channel: 'pubnub-bids',
+              message: a.data
+            });
+
           });
 
-        });
+        };
 
-        $('#bids').append(a.$tpl);
+        a.bump = function() {
+          
+          $('#' + a.data.id).addClass('bump');
+          $('#' + a.data.id).on('transitionend webkitTransitionEnd oTransitionEnd', function () {
+              $('#' + a.data.id).removeClass('bump')
+          });
+
+          a.data.percentLeft = 100;
+          a.data.price = parseInt(a.data.price) + 1;
+
+          a.render();
+
+        };
+
+        setInterval(function(){
+
+          a.data.percentLeft = a.data.percentLeft - .1;
+          $('#' + a.data.id).find('.progress-bar').css('width', a.data.percentLeft + '%');
+
+        }, 100);
+
+        $('#bids').append(a.$wrapper);
+        a.render();
 
         return a;
 
@@ -211,9 +265,7 @@
       self.pubnub.subscribe({
         channel: 'pubnub-bids',
         message: function(data) {
-
-          console.log(self.auctions[data.id])
-
+          self.auctions[data.id].bump();
         }
       });
 
