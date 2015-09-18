@@ -21,12 +21,27 @@
     .product img {
       height: 230px;
     }
+    @keyframes exploder {
+      0% {
+        -ms-transform: scale(1);
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
+      50% {
+        -ms-transform: scale(1.2);
+        -webkit-transform: scale(1.2);
+        transform: scale(1.2);
+      }
+      100% {
+        -ms-transform: scale(1);
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
+    }
     .bump {
-      -ms-transform: scale(1.5);
-      -webkit-transform: scale(1.5);
-      transform: scale(1.5);
-      -webkit-transition-duration: 1s;
-      transition-duration: 1s;
+      animation: exploder .7s;
+      -webkit-transition-duration: .7s;
+      transition-duration: .7s;
     }
     </style>
 
@@ -232,7 +247,7 @@
         a.bump = function() {
           
           $('#' + a.data.id).addClass('bump');
-          $('#' + a.data.id).on('transitionend webkitTransitionEnd oTransitionEnd', function () {
+          $('#' + a.data.id).one('webkitAnimationEnd oanimationend msAnimationEnd animationend', function () {
               $('#' + a.data.id).removeClass('bump')
           });
 
